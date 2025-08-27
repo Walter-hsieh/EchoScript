@@ -3,7 +3,7 @@
 Turn written two‑person dialogues into lifelike, multi‑speaker audio using Google's Gemini TTS. Paste your script, click Generate, and listen instantly in your browser.
 
 ### Features
-- **Multi‑speaker voices**: Select distinct voices for speakers "Me" and "Wife" via dropdowns
+- **Multi‑speaker voices**: Select distinct voices for speakers 1 and 2 via dropdowns
 - **Upload .txt**: Load your script from a `.txt` file directly into the editor
 - **One‑file app**: Pure client‑side `dialogue-converter.html` — no backend required
 - **Session‑only API key**: Prompts for your key and stores it in `sessionStorage` for the current tab only
