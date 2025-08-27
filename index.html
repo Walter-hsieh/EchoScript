@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dialogue to Audio Converter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        audio::-webkit-media-controls-panel {
+            background-color: #f7fafc;
+        }
+        audio::-webkit-media-controls-play-button,
+        audio::-webkit-media-controls-mute-button {
+            color: #4a5568;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div class="w-full max-w-2xl bg-white rounded-xl shadow-lg p-6 md:p-8 space-y-6">
+        <!-- Header -->
+        <div class="text-center">
+            <h1 class="text-3xl font-bold text-gray-800">Dialogue to Audio Converter</h1>
+            <p class="text-gray-500 mt-2">Enter a dialogue, assign speakers, and listen to the AI-generated conversation.</p>
+        </div>
+
+        <!-- Voice Selection -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="voiceSpeaker1" class="block text-sm font-medium text-gray-700 mb-2">Voice for Speaker 1 </label>
+                <select id="voiceSpeaker1" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="kore" selected>Kore</option>
+                    <option value="callirrhoe">Callirrhoe</option>
+                    <option value="achernar">Achernar</option>
+                    <option value="achird">Achird</option>
+                    <option value="algenib">Algenib</option>
+                    <option value="algieba">Algieba</option>
+                    <option value="alnilam">Alnilam</option>
+                    <option value="aoede">Aoede</option>
+                    <option value="autonoe">Autonoe</option>
+                    <option value="charon">Charon</option>
+                    <option value="despina">Despina</option>
+                    <option value="enceladus">Enceladus</option>
+                    <option value="erinome">Erinome</option>
+                    <option value="fenrir">Fenrir</option>
+                    <option value="gacrux">Gacrux</option>
+                    <option value="iapetus">Iapetus</option>
+                    <option value="laomedeia">Laomedeia</option>
+                    <option value="leda">Leda</option>
+                    <option value="orus">Orus</option>
+                    <option value="puck">Puck</option>
+                    <option value="pulcherrima">Pulcherrima</option>
+                    <option value="rasalgethi">Rasalgethi</option>
+                    <option value="sadachbia">Sadachbia</option>
+                    <option value="sadaltager">Sadaltager</option>
+                    <option value="schedar">Schedar</option>
+                    <option value="sulafat">Sulafat</option>
+                    <option value="umbriel">Umbriel</option>
+                    <option value="vindemiatrix">Vindemiatrix</option>
+                    <option value="zephyr">Zephyr</option>
+                    <option value="zubenelgenubi">Zubenelgenubi</option>
+                </select>
+            </div>
+            <div>
+                <label for="voiceSpeaker2" class="block text-sm font-medium text-gray-700 mb-2">Voice for Speaker 2 </label>
+                <select id="voiceSpeaker2" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="callirrhoe" selected>Callirrhoe</option>
+                    <option value="kore">Kore</option>
+                    <option value="achernar">Achernar</option>
+                    <option value="achird">Achird</option>
+                    <option value="algenib">Algenib</option>
+                    <option value="algieba">Algieba</option>
+                    <option value="alnilam">Alnilam</option>
+                    <option value="aoede">Aoede</option>
+                    <option value="autonoe">Autonoe</option>
+                    <option value="charon">Charon</option>
+                    <option value="despina">Despina</option>
+                    <option value="enceladus">Enceladus</option>
+                    <option value="erinome">Erinome</option>
+                    <option value="fenrir">Fenrir</option>
+                    <option value="gacrux">Gacrux</option>
+                    <option value="iapetus">Iapetus</option>
+                    <option value="laomedeia">Laomedeia</option>
+                    <option value="leda">Leda</option>
+                    <option value="orus">Orus</option>
+                    <option value="puck">Puck</option>
+                    <option value="pulcherrima">Pulcherrima</option>
+                    <option value="rasalgethi">Rasalgethi</option>
+                    <option value="sadachbia">Sadachbia</option>
+                    <option value="sadaltager">Sadaltager</option>
+                    <option value="schedar">Schedar</option>
+                    <option value="sulafat">Sulafat</option>
+                    <option value="umbriel">Umbriel</option>
+                    <option value="vindemiatrix">Vindemiatrix</option>
+                    <option value="zephyr">Zephyr</option>
+                    <option value="zubenelgenubi">Zubenelgenubi</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Upload .txt Button -->
+        <div class="flex items-center gap-3">
+            <input id="fileInput" type="file" accept=".txt" class="hidden">
+            <button id="uploadBtn" class="bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition">Upload .txt Script</button>
+        </div>
+
+        <!-- Dialogue Input -->
+        <div>
+            <label for="dialogue" class="block text-sm font-medium text-gray-700 mb-2">Dialogue Script</label>
+            <textarea id="dialogue" rows="15" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">Me: Hey! Finally calling. How was your day? How was the trip with your little graduate?
+Wife: It was so much fun! He was so excited. You know how they get at that age. My day was great. How was yours? Sounded like you had a full schedule.
+Me: You have no idea. Man, what a day. It seriously felt like three different days packed into one.
+Wife: Oh no, that sounds exhausting. Was it a good day or a bad day?
+Me: A good day, I think. Definitely a rewarding one. The afternoon started out great, actually. I had lunch with the interns from Malaysia, and it was just a really good time, you know? Just connecting with them.
+Wife: That’s nice! They seem like a good group.
+Me: They are. But then, on the walk back to my car, the sky just opened up. A total downpour. We had to make a run for it and ended up ducking into this little dessert shop.
+Wife: Wait, that actually sounds kind of perfect.
+Me: It was! It turned out to be a nice, unexpected break. Just sitting there, eating something sweet and waiting for the rain to stop. Then it was back to work, and the pace just completely shifted. I had that long meeting about the carbon capture project.
+Wife: Ugh, the intense one. How did it go?
+Me: It was one of those meetings that just drains your brain, but we really hammered everything out. We finally—finally—landed on a solid plan for what to do next. It’s such a relief.
+Wife: That’s amazing! I know how much you wanted to get that sorted out.
+Me: Totally. Oh, and I got a call from my dad later.
+Wife: Is everything okay?
+Me: Yeah, he's okay. His knee was just hurting him badly again. It's so hard being this far away, you know? But he asked me to order him some food, and I was able to get a meal sent right over with Uber Eats. I’m just so grateful for that. Just being able to take care of him in that small way really means a lot.
+Wife: Of course it does. I'm glad you could do that for him.
+Me: Me too. Anyway, that was my crazy day. Tell me more about yours. It sounds like it was a lot more fun.
+Wife: It was just sweet. Seeing how much the kids have grown. It makes me a little nostalgic, but also so excited for what’s next for us.
+Me: Me too. Hearing you talk about it just makes me think about our future... and how, this December, we’re going to be starting our new life together in the Netherlands.
+Wife: I know. It's all happening so fast.</textarea>
+        </div>
+
+        <!-- Action Button -->
+        <button id="generateBtn" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out flex items-center justify-center space-x-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg>
+            <span>Generate Audio</span>
+        </button>
+
+        <!-- Output Section -->
+        <div id="output" class="space-y-4">
+            <div id="loader" class="hidden mx-auto loader"></div>
+            <div id="error" class="hidden text-red-600 bg-red-100 p-3 rounded-lg"></div>
+            <audio id="audioPlayer" controls class="w-full hidden rounded-lg"></audio>
+        </div>
+    </div>
+
+    <script>
+        const generateBtn = document.getElementById('generateBtn');
+        const dialogueText = document.getElementById('dialogue');
+        const loader = document.getElementById('loader');
+        const errorDiv = document.getElementById('error');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const voiceSpeaker1 = document.getElementById('voiceSpeaker1');
+        const voiceSpeaker2 = document.getElementById('voiceSpeaker2');
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+
+        // Handle .txt file upload to populate textarea
+        uploadBtn?.addEventListener('click', () => fileInput?.click());
+        fileInput?.addEventListener('change', async (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            if (file.type && file.type !== 'text/plain' && !file.name.toLowerCase().endsWith('.txt')) {
+                errorDiv.textContent = 'Please upload a valid .txt file.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            try {
+                const text = await file.text();
+                dialogueText.value = text;
+                errorDiv.classList.add('hidden');
+            } catch (err) {
+                errorDiv.textContent = 'Failed to read the file.';
+                errorDiv.classList.remove('hidden');
+            } finally {
+                fileInput.value = '';
+            }
+        });
+
+        // Persist API key only for this session (not hardcoded in source)
+        let apiKey = sessionStorage.getItem('GEMINI_API_KEY') || '';
+
+        function ensureApiKey() {
+            if (apiKey && apiKey.trim()) return true;
+            const entered = window.prompt('Enter your Google Generative Language API key (kept for this session only):', '');
+            if (!entered || !entered.trim()) {
+                errorDiv.textContent = 'Missing API key. Please provide a valid API key to continue.';
+                errorDiv.classList.remove('hidden');
+                return false;
+            }
+            apiKey = entered.trim();
+            sessionStorage.setItem('GEMINI_API_KEY', apiKey);
+            return true;
+        }
+
+        /**
+         * Converts a base64 string to an ArrayBuffer.
+         * @param {string} base64 The base64 string to convert.
+         * @returns {ArrayBuffer} The resulting ArrayBuffer.
+         */
+        function base64ToArrayBuffer(base64) {
+            const binaryString = window.atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        /**
+         * Converts raw PCM audio data into a WAV file Blob.
+         * @param {Int16Array} pcmData The raw PCM data.
+         * @param {number} sampleRate The sample rate of the audio.
+         * @returns {Blob} A Blob representing the WAV file.
+         */
+        function pcmToWav(pcmData, sampleRate) {
+            const numChannels = 1;
+            const bitsPerSample = 16;
+            const byteRate = sampleRate * numChannels * (bitsPerSample / 8);
+            const blockAlign = numChannels * (bitsPerSample / 8);
+            const dataSize = pcmData.length * (bitsPerSample / 8);
+            const chunkSize = 36 + dataSize;
+
+            const buffer = new ArrayBuffer(44 + dataSize);
+            const view = new DataView(buffer);
+
+            // RIFF chunk descriptor
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, chunkSize, true);
+            writeString(view, 8, 'WAVE');
+
+            // FMT sub-chunk
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true); // Subchunk1Size for PCM
+            view.setUint16(20, 1, true); // AudioFormat for PCM
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, byteRate, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, bitsPerSample, true);
+
+            // DATA sub-chunk
+            writeString(view, 36, 'data');
+            view.setUint32(40, dataSize, true);
+
+            // Write PCM data
+            for (let i = 0; i < pcmData.length; i++) {
+                view.setInt16(44 + i * 2, pcmData[i], true);
+            }
+
+            return new Blob([view], { type: 'audio/wav' });
+        }
+
+        /**
+         * Helper function to write a string to a DataView.
+         * @param {DataView} view The DataView to write to.
+         * @param {number} offset The offset to start writing at.
+         * @param {string} string The string to write.
+         */
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+
+        /**
+         * Makes an API call to the Gemini model to generate TTS audio.
+         * Implements exponential backoff for retries.
+         * @param {object} payload The payload for the API request.
+         * @param {number} maxRetries The maximum number of retries.
+         * @returns {Promise<object>} The JSON response from the API.
+         */
+        async function generateContentWithBackoff(payload, maxRetries = 5) {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+            let delay = 1000; // Initial delay of 1 second
+
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        return await response.json();
+                    }
+
+                    if (response.status === 429 || response.status >= 500) {
+                        // Throttling or server error, so retry
+                        console.warn(`Request failed with status ${response.status}. Retrying in ${delay}ms...`);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        delay *= 2; // Double the delay for the next retry
+                    } else {
+                        // Other client-side error, don't retry
+                        let errorData = {};
+                        try { errorData = await response.json(); } catch (_) {}
+                        throw new Error(`API Error: ${errorData.error?.message || response.statusText}`);
+                    }
+                } catch (error) {
+                    if (i === maxRetries - 1) throw error; // Throw error on last retry
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2;
+                }
+            }
+        }
+
+
+        generateBtn.addEventListener('click', async () => {
+            const text = dialogueText.value.trim();
+            if (!text) {
+                errorDiv.textContent = 'Please enter a dialogue script.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            // UI updates for loading state
+            loader.classList.remove('hidden');
+            errorDiv.classList.add('hidden');
+            audioPlayer.classList.add('hidden');
+            generateBtn.disabled = true;
+            generateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            try {
+                if (!ensureApiKey()) {
+                    // Reset UI state if user cancels key entry
+                    loader.classList.add('hidden');
+                    generateBtn.disabled = false;
+                    generateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    return;
+                }
+                // Construct the payload for the multi-speaker TTS API
+                const payload = {
+                    contents: [{
+                        parts: [{ text: `TTS the following conversation between Me and Wife:\n${text}` }]
+                    }],
+                    generationConfig: {
+                        responseModalities: ["AUDIO"],
+                        speechConfig: {
+                            multiSpeakerVoiceConfig: {
+                                speakerVoiceConfigs: [
+                                    { speaker: "Me", voiceConfig: { prebuiltVoiceConfig: { voiceName: (voiceSpeaker1?.value || "kore") } } },
+                                    { speaker: "Wife", voiceConfig: { prebuiltVoiceConfig: { voiceName: (voiceSpeaker2?.value || "callirrhoe") } } }
+                                ]
+                            }
+                        }
+                    },
+                    model: "gemini-2.5-flash-preview-tts"
+                };
+
+                const result = await generateContentWithBackoff(payload);
+                
+                const part = result?.candidates?.[0]?.content?.parts?.[0];
+                const audioData = part?.inlineData?.data;
+                const mimeType = part?.inlineData?.mimeType;
+
+                if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                    const sampleRateMatch = mimeType.match(/rate=(\d+)/);
+                    if (!sampleRateMatch) {
+                        throw new Error("Could not determine sample rate from mime type.");
+                    }
+                    const sampleRate = parseInt(sampleRateMatch[1], 10);
+                    
+                    // The API returns raw signed 16-bit PCM audio data
+                    const pcmBuffer = base64ToArrayBuffer(audioData);
+                    const pcm16 = new Int16Array(pcmBuffer);
+                    
+                    // Convert PCM to a playable WAV format
+                    const wavBlob = pcmToWav(pcm16, sampleRate);
+                    const audioUrl = URL.createObjectURL(wavBlob);
+
+                    audioPlayer.src = audioUrl;
+                    audioPlayer.classList.remove('hidden');
+                } else {
+                    throw new Error("Invalid response from API. Audio data not found.");
+                }
+
+            } catch (error) {
+                console.error('Error generating audio:', error);
+                errorDiv.textContent = `An error occurred: ${error.message}`;
+                errorDiv.classList.remove('hidden');
+            } finally {
+                // UI updates to end loading state
+                loader.classList.add('hidden');
+                generateBtn.disabled = false;
+                generateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        });
+    </script>
+</body>
+</html>
