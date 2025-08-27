@@ -8,11 +8,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #FAFBFC;
         }
         .loader {
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
+            border-top: 4px solid #2563EB;
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -23,106 +24,185 @@
             100% { transform: rotate(360deg); }
         }
         audio::-webkit-media-controls-panel {
-            background-color: #f7fafc;
+            background-color: #F8FAFC;
         }
         audio::-webkit-media-controls-play-button,
         audio::-webkit-media-controls-mute-button {
-            color: #4a5568;
+            color: #64748B;
+        }
+        /* Custom select styling */
+        .custom-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+        /* Professional button styles */
+        .btn-primary {
+            background-color: #2563EB;
+            color: white;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-primary:hover {
+            background-color: #1D4ED8;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transform: translateY(-1px);
+        }
+        .btn-secondary {
+            background-color: #F8FAFC;
+            color: #475569;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-secondary:hover {
+            background-color: #F1F5F9;
+            border-color: #CBD5E1;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        /* Card styling */
+        .card {
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            border: 1px solid #E2E8F0;
+        }
+        /* Form input styling */
+        .form-input {
+            border: 1px solid #E2E8F0;
+            border-radius: 6px;
+            transition: all 0.2s ease-in-out;
+        }
+        .form-input:focus {
+            border-color: #2563EB;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
-    <div class="w-full max-w-2xl bg-white rounded-xl shadow-lg p-6 md:p-8 space-y-6">
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="w-full max-w-3xl card p-8 md:p-10 space-y-8">
         <!-- Header -->
-        <div class="text-center">
-            <h1 class="text-3xl font-bold text-gray-800">Dialogue to Audio Converter</h1>
-            <p class="text-gray-500 mt-2">Enter a dialogue, assign speakers, and listen to the AI-generated conversation.</p>
+        <div class="text-center bg-gray-50 rounded-lg p-6 border border-gray-100">
+            <h1 class="text-4xl font-bold text-gray-900 mb-3">EchoScript</h1>
+            <p class="text-gray-600 text-sm">Transform written dialogues into lifelike, multi-speaker audio conversations</p>
+        </div>
+            <!-- Mobile sticky action bar -->
+    <div class="fixed bottom-0 left-0 right-0 md:hidden bg-white/95 backdrop-blur border-t border-gray-200 p-4">
+        <button id="generateBtnMobile" class="w-full btn-primary font-bold py-3 px-6 rounded-lg">Convert to Audio</button>
+    </div>
+                    <div id="parseStatus" class="text-sm text-gray-500 mt-3 flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Lines: 0 • Speakers detected: –
+            </div>
+
+        <!-- API Key Bar -->
+        <div id="apiKeyBar" class="rounded-lg border border-blue-200 bg-blue-50 p-4 flex items-center gap-3">
+            <label for="apiKeyInput" class="text-sm font-medium text-gray-700">Gemini API Key</label>
+            <input id="apiKeyInput" type="password" placeholder="Paste your API key here..." class="flex-1 form-input p-3 text-sm">
+            <button id="saveApiKeyBtn" class="btn-primary text-sm font-medium py-2 px-4 rounded-md">Save</button>
+            <button id="toggleApiKeyVisibility" class="text-sm text-blue-600 hover:text-blue-700 font-medium">Show</button>
         </div>
 
         <!-- Voice Selection -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-                <label for="voiceSpeaker1" class="block text-sm font-medium text-gray-700 mb-2">Voice for Speaker 1 </label>
-                <select id="voiceSpeaker1" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="kore" selected>Kore</option>
-                    <option value="callirrhoe">Callirrhoe</option>
-                    <option value="achernar">Achernar</option>
-                    <option value="achird">Achird</option>
-                    <option value="algenib">Algenib</option>
-                    <option value="algieba">Algieba</option>
-                    <option value="alnilam">Alnilam</option>
-                    <option value="aoede">Aoede</option>
-                    <option value="autonoe">Autonoe</option>
-                    <option value="charon">Charon</option>
-                    <option value="despina">Despina</option>
-                    <option value="enceladus">Enceladus</option>
-                    <option value="erinome">Erinome</option>
-                    <option value="fenrir">Fenrir</option>
-                    <option value="gacrux">Gacrux</option>
-                    <option value="iapetus">Iapetus</option>
-                    <option value="laomedeia">Laomedeia</option>
-                    <option value="leda">Leda</option>
-                    <option value="orus">Orus</option>
-                    <option value="puck">Puck</option>
-                    <option value="pulcherrima">Pulcherrima</option>
-                    <option value="rasalgethi">Rasalgethi</option>
-                    <option value="sadachbia">Sadachbia</option>
-                    <option value="sadaltager">Sadaltager</option>
-                    <option value="schedar">Schedar</option>
-                    <option value="sulafat">Sulafat</option>
-                    <option value="umbriel">Umbriel</option>
-                    <option value="vindemiatrix">Vindemiatrix</option>
-                    <option value="zephyr">Zephyr</option>
-                    <option value="zubenelgenubi">Zubenelgenubi</option>
-                </select>
+                <label for="voiceSpeaker1" class="block text-sm font-semibold text-gray-900 mb-3">Voice for Speaker 1</label>
+                <div class="flex gap-3">
+                    <select id="voiceSpeaker1" class="w-full custom-select form-input p-3 text-sm">
+                        <option value="kore" selected>Kore</option>
+                        <option value="callirrhoe">Callirrhoe</option>
+                        <option value="achernar">Achernar</option>
+                        <option value="achird">Achird</option>
+                        <option value="algenib">Algenib</option>
+                        <option value="algieba">Algieba</option>
+                        <option value="alnilam">Alnilam</option>
+                        <option value="aoede">Aoede</option>
+                        <option value="autonoe">Autonoe</option>
+                        <option value="charon">Charon</option>
+                        <option value="despina">Despina</option>
+                        <option value="enceladus">Enceladus</option>
+                        <option value="erinome">Erinome</option>
+                        <option value="fenrir">Fenrir</option>
+                        <option value="gacrux">Gacrux</option>
+                        <option value="iapetus">Iapetus</option>
+                        <option value="laomedeia">Laomedeia</option>
+                        <option value="leda">Leda</option>
+                        <option value="orus">Orus</option>
+                        <option value="puck">Puck</option>
+                        <option value="pulcherrima">Pulcherrima</option>
+                        <option value="rasalgethi">Rasalgethi</option>
+                        <option value="sadachbia">Sadachbia</option>
+                        <option value="sadaltager">Sadaltager</option>
+                        <option value="schedar">Schedar</option>
+                        <option value="sulafat">Sulafat</option>
+                        <option value="umbriel">Umbriel</option>
+                        <option value="vindemiatrix">Vindemiatrix</option>
+                        <option value="zephyr">Zephyr</option>
+                        <option value="zubenelgenubi">Zubenelgenubi</option>
+                    </select>
+                    <button id="preview1" class="btn-secondary shrink-0 text-sm font-medium px-4 py-3 rounded-md">Preview</button>
+                </div>
             </div>
             <div>
-                <label for="voiceSpeaker2" class="block text-sm font-medium text-gray-700 mb-2">Voice for Speaker 2 </label>
-                <select id="voiceSpeaker2" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="callirrhoe" selected>Callirrhoe</option>
-                    <option value="kore">Kore</option>
-                    <option value="achernar">Achernar</option>
-                    <option value="achird">Achird</option>
-                    <option value="algenib">Algenib</option>
-                    <option value="algieba">Algieba</option>
-                    <option value="alnilam">Alnilam</option>
-                    <option value="aoede">Aoede</option>
-                    <option value="autonoe">Autonoe</option>
-                    <option value="charon">Charon</option>
-                    <option value="despina">Despina</option>
-                    <option value="enceladus">Enceladus</option>
-                    <option value="erinome">Erinome</option>
-                    <option value="fenrir">Fenrir</option>
-                    <option value="gacrux">Gacrux</option>
-                    <option value="iapetus">Iapetus</option>
-                    <option value="laomedeia">Laomedeia</option>
-                    <option value="leda">Leda</option>
-                    <option value="orus">Orus</option>
-                    <option value="puck">Puck</option>
-                    <option value="pulcherrima">Pulcherrima</option>
-                    <option value="rasalgethi">Rasalgethi</option>
-                    <option value="sadachbia">Sadachbia</option>
-                    <option value="sadaltager">Sadaltager</option>
-                    <option value="schedar">Schedar</option>
-                    <option value="sulafat">Sulafat</option>
-                    <option value="umbriel">Umbriel</option>
-                    <option value="vindemiatrix">Vindemiatrix</option>
-                    <option value="zephyr">Zephyr</option>
-                    <option value="zubenelgenubi">Zubenelgenubi</option>
-                </select>
+                <label for="voiceSpeaker2" class="block text-sm font-semibold text-gray-900 mb-3">Voice for Speaker 2</label>
+                <div class="flex gap-3">
+                    <select id="voiceSpeaker2" class="w-full custom-select form-input p-3 text-sm">
+                        <option value="callirrhoe" selected>Callirrhoe</option>
+                        <option value="kore">Kore</option>
+                        <option value="achernar">Achernar</option>
+                        <option value="achird">Achird</option>
+                        <option value="algenib">Algenib</option>
+                        <option value="algieba">Algieba</option>
+                        <option value="alnilam">Alnilam</option>
+                        <option value="aoede">Aoede</option>
+                        <option value="autonoe">Autonoe</option>
+                        <option value="charon">Charon</option>
+                        <option value="despina">Despina</option>
+                        <option value="enceladus">Enceladus</option>
+                        <option value="erinome">Erinome</option>
+                        <option value="fenrir">Fenrir</option>
+                        <option value="gacrux">Gacrux</option>
+                        <option value="iapetus">Iapetus</option>
+                        <option value="laomedeia">Laomedeia</option>
+                        <option value="leda">Leda</option>
+                        <option value="orus">Orus</option>
+                        <option value="puck">Puck</option>
+                        <option value="pulcherrima">Pulcherrima</option>
+                        <option value="rasalgethi">Rasalgethi</option>
+                        <option value="sadachbia">Sadachbia</option>
+                        <option value="sadaltager">Sadaltager</option>
+                        <option value="schedar">Schedar</option>
+                        <option value="sulafat">Sulafat</option>
+                        <option value="umbriel">Umbriel</option>
+                        <option value="vindemiatrix">Vindemiatrix</option>
+                        <option value="zephyr">Zephyr</option>
+                        <option value="zubenelgenubi">Zubenelgenubi</option>
+                    </select>
+                    <button id="preview2" class="btn-secondary shrink-0 text-sm font-medium px-4 py-3 rounded-md">Preview</button>
+                </div>
             </div>
         </div>
 
         <!-- Upload .txt Button -->
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-4">
             <input id="fileInput" type="file" accept=".txt" class="hidden">
-            <button id="uploadBtn" class="bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition">Upload .txt Script</button>
+            <button id="uploadBtn" class="btn-secondary font-medium py-3 px-6 rounded-md">
+                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                </svg>
+                Upload Script
+            </button>
         </div>
 
         <!-- Dialogue Input -->
         <div>
-            <label for="dialogue" class="block text-sm font-medium text-gray-700 mb-2">Dialogue Script</label>
-            <textarea id="dialogue" rows="15" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">Me: Hey! Finally calling. How was your day? How was the trip with your little graduate?
+            <label for="dialogue" class="block text-sm font-semibold text-gray-900 mb-3">Dialogue Script</label>
+            <textarea id="dialogue" rows="15" class="w-full form-input p-4 text-sm leading-relaxed">Me: Hey! Finally calling. How was your day? How was the trip with your little graduate?
 Wife: It was so much fun! He was so excited. You know how they get at that age. My day was great. How was yours? Sounded like you had a full schedule.
 Me: You have no idea. Man, what a day. It seriously felt like three different days packed into one.
 Wife: Oh no, that sounds exhausting. Was it a good day or a bad day?
@@ -142,20 +222,40 @@ Me: Me too. Anyway, that was my crazy day. Tell me more about yours. It sounds l
 Wife: It was just sweet. Seeing how much the kids have grown. It makes me a little nostalgic, but also so excited for what’s next for us.
 Me: Me too. Hearing you talk about it just makes me think about our future... and how, this December, we’re going to be starting our new life together in the Netherlands.
 Wife: I know. It's all happening so fast.</textarea>
+            <div id="parseStatus" class="text-sm text-gray-500 mt-3 flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Lines: 0 • Speakers detected: –
+            </div>
         </div>
 
         <!-- Action Button -->
-        <button id="generateBtn" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out flex items-center justify-center space-x-2">
+        <button id="generateBtn" class="w-full btn-primary font-bold py-4 px-6 rounded-lg flex items-center justify-center space-x-3 text-lg">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg>
-            <span>Generate Audio</span>
+            <span>Convert to Audio</span>
         </button>
 
         <!-- Output Section -->
-        <div id="output" class="space-y-4">
+        <div id="output" class="space-y-6">
             <div id="loader" class="hidden mx-auto loader"></div>
-            <div id="error" class="hidden text-red-600 bg-red-100 p-3 rounded-lg"></div>
-            <audio id="audioPlayer" controls class="w-full hidden rounded-lg"></audio>
+            <div id="progressWrap" class="hidden">
+                <div class="flex items-center justify-between text-sm text-gray-600 mb-2">
+                    <span id="progressLabel">Preparing…</span>
+                    <span id="progressPct">0%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                    <div id="progressBar" class="bg-blue-600 h-3 w-0 transition-[width] duration-300 rounded-full"></div>
+                </div>
+            </div>
+            <div id="error" class="hidden text-red-700 bg-red-50 border border-red-200 p-4 rounded-lg"></div>
+            <audio id="audioPlayer" controls class="w-full hidden rounded-lg shadow-sm"></audio>
         </div>
+    </div>
+
+    <!-- Mobile sticky action bar -->
+    <div class="fixed bottom-0 left-0 right-0 md:hidden bg-white/95 backdrop-blur border-t border-gray-200 p-4">
+        <button id="generateBtnMobile" class="w-full btn-primary font-bold py-3 px-6 rounded-lg">Convert to Audio</button>
     </div>
 
     <script>
@@ -168,6 +268,32 @@ Wife: I know. It's all happening so fast.</textarea>
         const voiceSpeaker2 = document.getElementById('voiceSpeaker2');
         const fileInput = document.getElementById('fileInput');
         const uploadBtn = document.getElementById('uploadBtn');
+        const parseStatus = document.getElementById('parseStatus');
+        const preview1 = document.getElementById('preview1');
+        const preview2 = document.getElementById('preview2');
+        const apiKeyBar = document.getElementById('apiKeyBar');
+        const apiKeyInput = document.getElementById('apiKeyInput');
+        const saveApiKeyBtn = document.getElementById('saveApiKeyBtn');
+        const toggleApiKeyVisibility = document.getElementById('toggleApiKeyVisibility');
+        const generateBtnMobile = document.getElementById('generateBtnMobile');
+        const progressWrap = document.getElementById('progressWrap');
+        const progressBar = document.getElementById('progressBar');
+        const progressPct = document.getElementById('progressPct');
+        const progressLabel = document.getElementById('progressLabel');
+
+        function setProgress(pct, label) {
+            const n = Math.max(0, Math.min(100, Math.round(pct)));
+            progressWrap.classList.remove('hidden');
+            progressBar.style.width = n + '%';
+            progressPct.textContent = n + '%';
+            if (label) progressLabel.textContent = label;
+        }
+        function resetProgress() {
+            progressWrap.classList.add('hidden');
+            progressBar.style.width = '0%';
+            progressPct.textContent = '0%';
+            progressLabel.textContent = 'Preparing…';
+        }
 
         // Handle .txt file upload to populate textarea
         uploadBtn?.addEventListener('click', () => fileInput?.click());
@@ -183,6 +309,8 @@ Wife: I know. It's all happening so fast.</textarea>
                 const text = await file.text();
                 dialogueText.value = text;
                 errorDiv.classList.add('hidden');
+                persistState();
+                updateParsing();
             } catch (err) {
                 errorDiv.textContent = 'Failed to read the file.';
                 errorDiv.classList.remove('hidden');
@@ -191,21 +319,100 @@ Wife: I know. It's all happening so fast.</textarea>
             }
         });
 
-        // Persist API key only for this session (not hardcoded in source)
-        let apiKey = sessionStorage.getItem('GEMINI_API_KEY') || '';
+        // Drag & drop support on textarea
+        dialogueText.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dialogueText.classList.add('ring-2','ring-blue-400');
+        });
+        dialogueText.addEventListener('dragleave', () => {
+            dialogueText.classList.remove('ring-2','ring-blue-400');
+        });
+        dialogueText.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            dialogueText.classList.remove('ring-2','ring-blue-400');
+            const file = e.dataTransfer?.files?.[0];
+            if (file && (file.type === 'text/plain' || file.name.toLowerCase().endsWith('.txt'))) {
+                try {
+                    const text = await file.text();
+                    dialogueText.value = text;
+                    persistState();
+                    updateParsing();
+                } catch {}
+            }
+        });
 
+        // Persist API key for this session (inline bar, no prompts)
+        let apiKey = sessionStorage.getItem('GEMINI_API_KEY') || '';
+        function renderApiKeyBar() {
+            if (apiKey && apiKey.trim()) {
+                apiKeyBar.classList.add('hidden');
+                apiKeyInput.value = '';
+            } else {
+                apiKeyBar.classList.remove('hidden');
+            }
+        }
+        renderApiKeyBar();
+        toggleApiKeyVisibility.addEventListener('click', () => {
+            apiKeyInput.type = apiKeyInput.type === 'password' ? 'text' : 'password';
+            toggleApiKeyVisibility.textContent = apiKeyInput.type === 'password' ? 'Show' : 'Hide';
+        });
+        saveApiKeyBtn.addEventListener('click', () => {
+            const val = apiKeyInput.value.trim();
+            if (!val) {
+                errorDiv.textContent = 'Please paste a valid API key.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            apiKey = val;
+            sessionStorage.setItem('GEMINI_API_KEY', apiKey);
+            renderApiKeyBar();
+            errorDiv.classList.add('hidden');
+        });
         function ensureApiKey() {
             if (apiKey && apiKey.trim()) return true;
-            const entered = window.prompt('Enter your Google Generative Language API key (kept for this session only):', '');
-            if (!entered || !entered.trim()) {
-                errorDiv.textContent = 'Missing API key. Please provide a valid API key to continue.';
-                errorDiv.classList.remove('hidden');
-                return false;
-            }
-            apiKey = entered.trim();
-            sessionStorage.setItem('GEMINI_API_KEY', apiKey);
-            return true;
+            renderApiKeyBar();
+            apiKeyBar.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return false;
         }
+
+        // Voice previews
+        async function previewVoice(voiceName) {
+            if (!ensureApiKey()) return;
+            try {
+                loader.classList.remove('hidden');
+                const payload = {
+                    contents: [{ parts: [{ text: 'This is a sample preview.' }] }],
+                    generationConfig: {
+                        responseModalities: ["AUDIO"],
+                        speechConfig: {
+                            multiSpeakerVoiceConfig: { speakerVoiceConfigs: [
+                                { speaker: "Sample", voiceConfig: { prebuiltVoiceConfig: { voiceName } } }
+                            ] }
+                        }
+                    },
+                    model: "gemini-2.5-flash-preview-tts"
+                };
+                const result = await generateContentWithBackoff(payload);
+                const part = result?.candidates?.[0]?.content?.parts?.[0];
+                const audioData = part?.inlineData?.data;
+                const mimeType = part?.inlineData?.mimeType;
+                if (audioData && mimeType?.startsWith('audio/')) {
+                    const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || '24000', 10);
+                    const pcmBuffer = base64ToArrayBuffer(audioData);
+                    const pcm16 = new Int16Array(pcmBuffer);
+                    const wavBlob = pcmToWav(pcm16, sampleRate);
+                    audioPlayer.src = URL.createObjectURL(wavBlob);
+                    audioPlayer.classList.remove('hidden');
+                }
+            } catch (e) {
+                errorDiv.textContent = `Preview failed: ${e.message}`;
+                errorDiv.classList.remove('hidden');
+            } finally {
+                loader.classList.add('hidden');
+            }
+        }
+        preview1?.addEventListener('click', () => previewVoice(voiceSpeaker1.value));
+        preview2?.addEventListener('click', () => previewVoice(voiceSpeaker2.value));
 
         /**
          * Converts a base64 string to an ArrayBuffer.
@@ -320,8 +527,52 @@ Wife: I know. It's all happening so fast.</textarea>
             }
         }
 
+        // Speaker parsing and status
+        function extractSpeakers(text) {
+            const unique = [];
+            const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+            for (const line of lines) {
+                const m = line.match(/^([^:]{1,50}):/);
+                if (m) {
+                    const name = m[1].trim();
+                    if (name && !unique.includes(name)) unique.push(name);
+                }
+            }
+            return { linesCount: lines.length, speakers: unique };
+        }
+        function updateParsing() {
+            const { linesCount, speakers } = extractSpeakers(dialogueText.value);
+            parseStatus.textContent = `Lines: ${linesCount} • Speakers detected: ${speakers.slice(0, 4).join(', ') || '–'}`;
+            return speakers;
+        }
+        // persist voices and text
+        function persistState() {
+            localStorage.setItem('es_text', dialogueText.value);
+            localStorage.setItem('es_v1', voiceSpeaker1.value);
+            localStorage.setItem('es_v2', voiceSpeaker2.value);
+        }
+        (function restoreState(){
+            const t = localStorage.getItem('es_text');
+            if (t) dialogueText.value = t;
+            const v1 = localStorage.getItem('es_v1');
+            if (v1) voiceSpeaker1.value = v1;
+            const v2 = localStorage.getItem('es_v2');
+            if (v2) voiceSpeaker2.value = v2;
+            updateParsing();
+        })();
+        dialogueText.addEventListener('input', () => { updateParsing(); persistState(); });
+        voiceSpeaker1.addEventListener('change', persistState);
+        voiceSpeaker2.addEventListener('change', persistState);
 
-        generateBtn.addEventListener('click', async () => {
+
+        function getSpeakerMapping() {
+            const speakers = updateParsing();
+            const s1 = speakers[0] || 'Speaker 1';
+            const s2 = speakers[1] || 'Speaker 2';
+            return { s1, s2 };
+        }
+
+        async function doGenerate() {
             const text = dialogueText.value.trim();
             if (!text) {
                 errorDiv.textContent = 'Please enter a dialogue script.';
@@ -331,6 +582,7 @@ Wife: I know. It's all happening so fast.</textarea>
 
             // UI updates for loading state
             loader.classList.remove('hidden');
+            setProgress(10, 'Validating input…');
             errorDiv.classList.add('hidden');
             audioPlayer.classList.add('hidden');
             generateBtn.disabled = true;
@@ -340,22 +592,25 @@ Wife: I know. It's all happening so fast.</textarea>
                 if (!ensureApiKey()) {
                     // Reset UI state if user cancels key entry
                     loader.classList.add('hidden');
+                    resetProgress();
                     generateBtn.disabled = false;
                     generateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                     return;
                 }
                 // Construct the payload for the multi-speaker TTS API
+                setProgress(35, 'Requesting TTS…');
+                const { s1, s2 } = getSpeakerMapping();
                 const payload = {
                     contents: [{
-                        parts: [{ text: `TTS the following conversation between Me and Wife:\n${text}` }]
+                        parts: [{ text: `TTS the following conversation. Preserve speaker turns as labelled.\n${text}` }]
                     }],
                     generationConfig: {
                         responseModalities: ["AUDIO"],
                         speechConfig: {
                             multiSpeakerVoiceConfig: {
                                 speakerVoiceConfigs: [
-                                    { speaker: "Me", voiceConfig: { prebuiltVoiceConfig: { voiceName: (voiceSpeaker1?.value || "kore") } } },
-                                    { speaker: "Wife", voiceConfig: { prebuiltVoiceConfig: { voiceName: (voiceSpeaker2?.value || "callirrhoe") } } }
+                                    { speaker: s1, voiceConfig: { prebuiltVoiceConfig: { voiceName: (voiceSpeaker1?.value || "kore") } } },
+                                    { speaker: s2, voiceConfig: { prebuiltVoiceConfig: { voiceName: (voiceSpeaker2?.value || "callirrhoe") } } }
                                 ]
                             }
                         }
@@ -364,6 +619,7 @@ Wife: I know. It's all happening so fast.</textarea>
                 };
 
                 const result = await generateContentWithBackoff(payload);
+                setProgress(70, 'Processing audio…');
                 
                 const part = result?.candidates?.[0]?.content?.parts?.[0];
                 const audioData = part?.inlineData?.data;
@@ -386,6 +642,7 @@ Wife: I know. It's all happening so fast.</textarea>
 
                     audioPlayer.src = audioUrl;
                     audioPlayer.classList.remove('hidden');
+                    setProgress(100, 'Done');
                 } else {
                     throw new Error("Invalid response from API. Audio data not found.");
                 }
@@ -397,10 +654,13 @@ Wife: I know. It's all happening so fast.</textarea>
             } finally {
                 // UI updates to end loading state
                 loader.classList.add('hidden');
+                setTimeout(resetProgress, 600);
                 generateBtn.disabled = false;
                 generateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             }
-        });
+        }
+        generateBtn.addEventListener('click', doGenerate);
+        generateBtnMobile?.addEventListener('click', doGenerate);
     </script>
 </body>
 </html>
